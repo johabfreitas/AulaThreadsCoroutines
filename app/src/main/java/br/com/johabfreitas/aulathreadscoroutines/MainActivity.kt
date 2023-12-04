@@ -8,10 +8,13 @@ import br.com.johabfreitas.aulathreadscoroutines.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,9 +74,31 @@ class MainActivity : AppCompatActivity() {
                     }
                     delay(1000)
                 }*/
-                withTimeout(7000L){
+                /*withTimeout(7000L){
                     executar()
+                }*/
+                val tempo = measureTimeMillis {
+
+                    /*var resultado1 = tarefa1()
+                    var resultado2 = tarefa2()*/
+
+                    val resultado1 = async {tarefa1() }
+                    val resultado2 = async {tarefa2() }
+
+                    withContext(Dispatchers.Main){
+                        binding.btnIniciar.text = "${resultado1.await()}"
+                        binding.btnParar.text = "${resultado2.await()}"
+                    }
+
+                    /*job1.join()
+                    job2.join()*/
+
+                    Log.i("info_coroutine", "resultado1:${resultado1.await()}")
+                    Log.i("info_coroutine", "resultado2:${resultado2.await()}")
+
                 }
+                Log.i("info_coroutine", "Tempo:$tempo")
+
             }
 
         }
@@ -86,12 +111,28 @@ class MainActivity : AppCompatActivity() {
 
     //Minhas Classes
 
+    private suspend fun tarefa1(): String{
+        repeat(3){indice->
+            Log.i("info_coroutine", "Tarefa1: ${indice + 1} T: ${Thread.currentThread().name}")
+            delay(1000L)
+        }
+        return "Executou tarefa 1"
+    }
+
+    private suspend fun tarefa2(): String{
+        repeat(3){indice->
+            Log.i("info_coroutine", "Tarefa2: ${indice + 1} T: ${Thread.currentThread().name}")
+            delay(1000L)
+        }
+        return "Executou tarefa 2"
+    }
+
     private suspend fun executar(){
         repeat(15){indice->
-            Log.i("info_coroutine", "Executando: $indice T: ${Thread.currentThread().name}")
+            Log.i("info_coroutine", "Executando: ${indice + 1} T: ${Thread.currentThread().name}")
 
             withContext(Dispatchers.Main){
-                binding.btnIniciar.text = "Executando: $indice T: ${Thread.currentThread().name}"
+                binding.btnIniciar.text = "Executando: ${indice + 1} T: ${Thread.currentThread().name}"
                 binding.btnIniciar.isEnabled = false
             }
             delay(1000L)
@@ -128,9 +169,9 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                Log.i("info_thread", "MinhaThread: $indice T: ${Thread.currentThread().name}")
+                Log.i("info_thread", "MinhaThread: ${indice + 1} T: ${Thread.currentThread().name}")
                 runOnUiThread{
-                    binding.btnIniciar.text = "Executando: $indice T: ${Thread.currentThread().name}"
+                    binding.btnIniciar.text = "Executando: ${indice + 1} T: ${Thread.currentThread().name}"
                     binding.btnIniciar.isEnabled = false
                     if(indice == 29){
                         binding.btnIniciar.text = "Reiniciar execução"
