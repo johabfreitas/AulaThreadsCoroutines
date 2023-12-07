@@ -124,7 +124,57 @@ job1.join()
                 //recuperarEndereco()
                 //recuperarPostagens()
                 //recuperarPostagemUnica()
-                recuperarComentariosPostagens()
+                //recuperarComentariosPostagens()
+                salvarPostagem()
+            }
+        }
+    }
+
+    private suspend fun salvarPostagem() {
+
+        var retorno: Response<Postagem>? = null
+
+        val postagem = Postagem(
+            "Corpo da postagem",
+            -1,
+            "Titulo da postagem",
+            1090
+        )
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            //retorno = postagemAPI.salvarPostagem(postagem)
+            retorno = postagemAPI.salvarPostagemFormulario(
+                1090,
+                -1,
+                "Titulo da postagem",
+                "Corpo da postagem"
+            )
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val postagem = retorno.body()
+
+                val id = postagem?.id
+                val titulo = postagem?.title
+                val idUsuario = postagem?.userId
+                var resultado = "[${retorno.code()}] id:$id - T:$titulo - U:$idUsuario"
+
+                Log.i("info_jsonplace", "id:$id - T:$titulo - U:$idUsuario")
+
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = resultado
+                }
+
+            } else {
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = "ERRO CODE:${retorno.code()}"
+                }
             }
         }
     }
