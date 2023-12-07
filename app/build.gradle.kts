@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "br.com.johabfreitas.aulathreadscoroutines"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -36,9 +36,17 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
 }
 
 dependencies {
+
+    //Dependencias Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    //implementation ("com.squareup.retrofit2:adapter-rxjava:2.9.0")
+    //implementation ("com.google.code.gson:gson:2.9.0")
+
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

@@ -4,7 +4,12 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import br.com.johabfreitas.aulathreadscoroutines.api.EnderecoAPI
+import br.com.johabfreitas.aulathreadscoroutines.api.PostagemAPI
+import br.com.johabfreitas.aulathreadscoroutines.api.RetrofitHelper
 import br.com.johabfreitas.aulathreadscoroutines.databinding.ActivityMainBinding
+import br.com.johabfreitas.aulathreadscoroutines.model.Endereco
+import br.com.johabfreitas.aulathreadscoroutines.model.Postagem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,12 +19,17 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import retrofit2.Response
 import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
+    }
+
+    private val retrofit by lazy {
+        RetrofitHelper.retrofit
     }
 
     private var pararThread = false
@@ -43,10 +53,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnIniciar.setOnClickListener{
+                /*
 
             //MinhaThread().start()
             //Thread(MinhaRunnable()).start()
-            /*Thread{
+Thread{
                 repeat(30){indice ->
                     Log.i("info_thread", "MinhaThread: $indice T: ${Thread.currentThread().name}")
                     runOnUiThread{
@@ -59,28 +70,33 @@ class MainActivity : AppCompatActivity() {
                     }
                     Thread.sleep(1000)
                 }
-            }.start()*/
-            /*CoroutineScope (Dispatchers.Main).launch{
+            }.start()
+
+CoroutineScope (Dispatchers.Main).launch{
                 binding.btnIniciar.text = "Executou"
-            }*/
+            }
+
 
 
 
             job = CoroutineScope(Dispatchers.IO).launch{
-                /*repeat(15){indice->
+repeat(15){indice->
                     Log.i("info_coroutine", "Executando: $indice T: ${Thread.currentThread().name}")
                     withContext(Dispatchers.Main){
                         binding.btnIniciar.text = "Executando: $indice T: ${Thread.currentThread().name}"
                     }
                     delay(1000)
-                }*/
-                /*withTimeout(7000L){
+                }
+
+withTimeout(7000L){
                     executar()
-                }*/
+                }
+
                 val tempo = measureTimeMillis {
 
-                    /*var resultado1 = tarefa1()
-                    var resultado2 = tarefa2()*/
+var resultado1 = tarefa1()
+                    var resultado2 = tarefa2()
+
 
                     val resultado1 = async {tarefa1() }
                     val resultado2 = async {tarefa2() }
@@ -90,17 +106,74 @@ class MainActivity : AppCompatActivity() {
                         binding.btnParar.text = "${resultado2.await()}"
                     }
 
-                    /*job1.join()
-                    job2.join()*/
+job1.join()
+                    job2.join()
+
 
                     Log.i("info_coroutine", "resultado1:${resultado1.await()}")
                     Log.i("info_coroutine", "resultado2:${resultado2.await()}")
+
 
                 }
                 Log.i("info_coroutine", "Tempo:$tempo")
 
             }
+*/
+            CoroutineScope(Dispatchers.IO).launch {
+                //recuperarEndereco()
+                recuperarPostagens()
+            }
+        }
+    }
 
+    private suspend fun recuperarPostagens() {
+
+        var retorno: Response<List<Postagem>>? = null
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            retorno = postagemAPI.recuperarPostagens()
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val listaPostagens = retorno.body()
+                listaPostagens?.forEach {postagem ->
+                    val id = postagem.id
+                    val title = postagem.title
+                    Log.i("info_jsonplace", "$id - $title")
+                }
+
+            }
+        }
+    }
+
+    private suspend fun recuperarEndereco(){
+
+        var retorno: Response<Endereco>? = null
+        val cepDigitadoUsuario = "59300000"
+
+        try {
+            val enderecoAPI = retrofit.create(EnderecoAPI::class.java)
+            retorno = enderecoAPI.recuperarEndereco(cepDigitadoUsuario)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_endereco", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val endereco = retorno.body()
+                val rua = endereco?.logradouro
+                val cidade = endereco?.localidade
+                val cep = endereco?.cep
+                Log.i("info_endereco", "Endereco: $rua, $cidade, $cep")
+            }
         }
     }
 
