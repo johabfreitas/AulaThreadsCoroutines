@@ -4,6 +4,7 @@ import br.com.johabfreitas.aulathreadscoroutines.model.Comentario
 import br.com.johabfreitas.aulathreadscoroutines.model.Postagem
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -58,4 +59,9 @@ interface PostagemAPI {
         @Path("id") id: Int,
         @Body postagem: Postagem
     ): Response<Postagem>
+
+    @DELETE("posts/{id}") //Remover postagem
+    suspend fun removerPostagem(
+        @Path("id") id: Int
+    ): Response<Unit> //método sem retorno
 }

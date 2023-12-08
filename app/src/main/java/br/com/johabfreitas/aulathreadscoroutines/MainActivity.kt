@@ -127,7 +127,40 @@ job1.join()
                 //recuperarComentariosPostagens()
                 //salvarPostagem()
                 //atualizarPostagem()
-                atualizarPostagemPatch()
+                //atualizarPostagemPatch()
+                removerPostagem()
+            }
+        }
+    }
+
+    private suspend fun removerPostagem() {
+
+        var retorno: Response<Unit>? = null
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            retorno = postagemAPI.removerPostagem(1)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+
+                var resultado = "[${retorno.code()}] sucesso ao remover postagem"
+
+                Log.i("info_jsonplace", "R:$retorno")
+
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = resultado
+                }
+
+            } else {
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = "ERRO CODE:${retorno.code()}"
+                }
             }
         }
     }
