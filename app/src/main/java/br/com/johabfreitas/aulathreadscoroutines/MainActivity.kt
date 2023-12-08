@@ -125,7 +125,93 @@ job1.join()
                 //recuperarPostagens()
                 //recuperarPostagemUnica()
                 //recuperarComentariosPostagens()
-                salvarPostagem()
+                //salvarPostagem()
+                //atualizarPostagem()
+                atualizarPostagemPatch()
+            }
+        }
+    }
+
+    private suspend fun atualizarPostagemPatch() {
+
+        var retorno: Response<Postagem>? = null
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            retorno = postagemAPI.atualizarPostagemPatch(
+                1,
+                Postagem("Corpo da postagem", -1, null, 1090 )
+
+            )
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val postagem = retorno.body()
+
+                val id = postagem?.id
+                val titulo = postagem?.title
+                val idUsuario = postagem?.userId
+                val corpo = postagem?.description
+
+                var resultado = "[${retorno.code()}] ID:$id - T:$titulo - C:$corpo - U:$idUsuario"
+
+                Log.i("info_jsonplace", "id:$id - T:$titulo - U:$idUsuario")
+
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = resultado
+                }
+
+            } else {
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = "ERRO CODE:${retorno.code()}"
+                }
+            }
+        }
+    }
+
+    private suspend fun atualizarPostagem() {
+
+        var retorno: Response<Postagem>? = null
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            retorno = postagemAPI.atualizarPostagemPut(
+                1,
+                Postagem("Corpo da postagem", -1, "Titulo", 1090 )
+
+            )
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val postagem = retorno.body()
+
+                val id = postagem?.id
+                val titulo = postagem?.title
+                val idUsuario = postagem?.userId
+                val corpo = postagem?.description
+
+                var resultado = "[${retorno.code()}] ID:$id - T:$titulo - C:$corpo - U:$idUsuario"
+
+                Log.i("info_jsonplace", "id:$id - T:$titulo - U:$idUsuario")
+
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = resultado
+                }
+
+            } else {
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = "ERRO CODE:${retorno.code()}"
+                }
             }
         }
     }
