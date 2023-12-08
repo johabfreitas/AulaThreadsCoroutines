@@ -1,6 +1,7 @@
 package br.com.johabfreitas.aulathreadscoroutines.api
 
 import br.com.johabfreitas.aulathreadscoroutines.model.Comentario
+import br.com.johabfreitas.aulathreadscoroutines.model.Foto
 import br.com.johabfreitas.aulathreadscoroutines.model.Postagem
 import retrofit2.Response
 import retrofit2.http.Body
@@ -64,4 +65,9 @@ interface PostagemAPI {
     suspend fun removerPostagem(
         @Path("id") id: Int
     ): Response<Unit> //método sem retorno
+
+    @GET("photos/{id}")
+    suspend fun recuperarFoto(
+        @Path("id") id: Int
+    ): Response<Foto>
 }

@@ -10,7 +10,9 @@ import br.com.johabfreitas.aulathreadscoroutines.api.RetrofitHelper
 import br.com.johabfreitas.aulathreadscoroutines.databinding.ActivityMainBinding
 import br.com.johabfreitas.aulathreadscoroutines.model.Comentario
 import br.com.johabfreitas.aulathreadscoroutines.model.Endereco
+import br.com.johabfreitas.aulathreadscoroutines.model.Foto
 import br.com.johabfreitas.aulathreadscoroutines.model.Postagem
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -128,7 +130,43 @@ job1.join()
                 //salvarPostagem()
                 //atualizarPostagem()
                 //atualizarPostagemPatch()
-                removerPostagem()
+                //removerPostagem()
+                recuperarFotoUnica()
+            }
+        }
+    }
+
+    private suspend fun recuperarFotoUnica() {
+
+        var retorno: Response<Foto>? = null
+
+        try {
+            val postagemAPI= retrofit.create(PostagemAPI::class.java)
+            retorno = postagemAPI.recuperarFoto(5)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_jsonplace", "Erro ao recuperar")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+                val foto = retorno.body()
+                val resultado = "[${retorno.code()}] - ${foto?.id} - ${foto?.url}"
+
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = resultado
+                    Picasso.get()
+                        .load(foto?.url)
+                        .into(binding.imageFoto)
+                }
+
+                Log.i("info_jsonplace", resultado)
+
+            }else {
+                withContext(Dispatchers.Main){
+                    binding.textResultado.text = "ERRO CODE:${retorno.code()}"
+                }
             }
         }
     }
