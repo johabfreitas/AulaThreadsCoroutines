@@ -157,7 +157,13 @@ job1.join()
                 withContext(Dispatchers.Main){
                     binding.textResultado.text = resultado
                     Picasso.get()
-                        .load(foto?.url)
+                        //.load(foto?.url)
+                        .load(R.drawable.picasso)
+                        .resize(100, 200)
+                        //.centerInside()
+                        //.centerCrop(200)
+                        .placeholder(R.drawable.carregando)
+                        //.error(R.drawable.picasso)
                         .into(binding.imageFoto)
                 }
 
