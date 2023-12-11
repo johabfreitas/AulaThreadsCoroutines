@@ -142,7 +142,40 @@ job1.join()
                 //API The Movie DB
                 //recuperarFilmesPopulares()
 
-                recuperarDetalhesFilme()
+                //recuperarDetalhesFilme()
+
+                recuperarFilmePesquisa()
+            }
+        }
+    }
+
+    private suspend fun recuperarFilmePesquisa() {
+
+        var retorno: Response<FilmeRespota>? = null
+
+        try {
+            retorno = filmeAPI.recuperarFilmePesquisa("hocus")
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_tmdb", "Erro ao recuperar filmes pesquisa")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+
+                val filmeRespota = retorno.body()
+                val listaFilmes = filmeRespota?.results
+
+                Log.i("info_tmdb", "CODIGO: ${retorno.code()}")
+                listaFilmes?.forEach {filme ->
+                    val id = filme.id
+                    val title = filme.title
+                    Log.i("info_tmdb", "$id - $title")
+                }
+
+            } else {
+                Log.i("info_tmdb", "Erro CODIGO: ${retorno.code()}")
             }
         }
     }
@@ -174,11 +207,21 @@ job1.join()
                 val listaGeneros = filmeDetalhes?.genres
                 val pais = filmeDetalhes?.production_countries?.get(0)
 
+                //https://image.tmdb.org/t/p/ + w500 + /wwemzKWzjKYJFfCeiB57q3r4Bcm.png
+                val nomeImagem = filmeDetalhes?.backdrop_path
+                val url = RetrofitHelper.BASE_URL_IMAGE + "w500" + nomeImagem
+
+                withContext(Dispatchers.Main){
+                    Picasso.get()
+                        .load(url)
+                        .into(binding.imageFoto)
+                }
+
                 Log.i("info_tmdb", "CODIGO: ${retorno.code()}")
                 Log.i("info_tmdb", "Titulo: $titulo")
                 Log.i("info_tmdb", "Pais: ${pais?.name}")
 
-                listaGeneros?.forEach{ genero->
+                listaGeneros?.forEach{ genero ->
                     Log.i("info_tmdb", "Genero: ${genero.name}")
                 }
 
