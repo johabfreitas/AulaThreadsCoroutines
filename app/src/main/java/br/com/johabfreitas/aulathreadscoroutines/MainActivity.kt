@@ -10,6 +10,8 @@ import br.com.johabfreitas.aulathreadscoroutines.api.RetrofitHelper
 import br.com.johabfreitas.aulathreadscoroutines.databinding.ActivityMainBinding
 import br.com.johabfreitas.aulathreadscoroutines.model.Comentario
 import br.com.johabfreitas.aulathreadscoroutines.model.Endereco
+import br.com.johabfreitas.aulathreadscoroutines.model.FilmeDetalhes
+import br.com.johabfreitas.aulathreadscoroutines.model.FilmeRespota
 import br.com.johabfreitas.aulathreadscoroutines.model.Foto
 import br.com.johabfreitas.aulathreadscoroutines.model.Postagem
 import com.squareup.picasso.Picasso
@@ -33,6 +35,10 @@ class MainActivity : AppCompatActivity() {
 
     private val retrofit by lazy {
         RetrofitHelper.retrofit
+    }
+
+    private val filmeAPI by lazy {
+        RetrofitHelper.filmeAPI
     }
 
     private var pararThread = false
@@ -131,7 +137,90 @@ job1.join()
                 //atualizarPostagem()
                 //atualizarPostagemPatch()
                 //removerPostagem()
-                recuperarFotoUnica()
+                //recuperarFotoUnica()
+
+                //API The Movie DB
+                //recuperarFilmesPopulares()
+
+                recuperarDetalhesFilme()
+            }
+        }
+    }
+
+    private suspend fun recuperarDetalhesFilme() {
+
+        /*
+        897087 - Freelance
+        466420 - Killers of the Flower Moon
+        901362 - Trolls Band Together
+         */
+
+        var retorno: Response<FilmeDetalhes>? = null
+
+        try {
+            retorno = filmeAPI.recuperarDetalhesFilme(897087)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_tmdb", "Erro ao recuperar detalhes filmes")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+
+                val filmeDetalhes = retorno.body()
+
+                val titulo = filmeDetalhes?.title
+                val listaGeneros = filmeDetalhes?.genres
+                val pais = filmeDetalhes?.production_countries?.get(0)
+
+                Log.i("info_tmdb", "CODIGO: ${retorno.code()}")
+                Log.i("info_tmdb", "Titulo: $titulo")
+                Log.i("info_tmdb", "Pais: ${pais?.name}")
+
+                listaGeneros?.forEach{ genero->
+                    Log.i("info_tmdb", "Genero: ${genero.name}")
+                }
+
+
+            } else {
+                Log.i("info_tmdb", "Erro CODIGO: ${retorno.code()}")
+            }
+        }
+    }
+
+    private suspend fun recuperarFilmesPopulares() {
+
+        var retorno: Response<FilmeRespota>? = null
+
+        try {
+            retorno = filmeAPI.recuperarFilmesPopulares()
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.i("info_tmdb", "Erro ao recuperar filmes populares")
+        }
+
+        if(retorno != null){
+
+            if(retorno.isSuccessful){
+
+                val filmeRespota = retorno.body()
+                val listaFilmes = filmeRespota?.results
+
+                val pagina = filmeRespota?.page
+                val totalPaginas = filmeRespota?.total_pages
+                val totalFilmes = filmeRespota?.total_results
+
+                Log.i("info_tmdb", "CODIGO: ${retorno.code()}")
+
+                listaFilmes?.forEach {filme ->
+                    val id = filme.id
+                    val title = filme.title
+                    Log.i("info_tmdb", "$id - $title")
+                }
+
+            } else {
+                Log.i("info_tmdb", "Erro CODIGO: ${retorno.code()}")
             }
         }
     }
